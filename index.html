@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#667eea">
-    <meta name="description" content="My Progressive Web App">
-    <link rel="manifest" href="./manifest.json">
-    <link rel="icon" type="image/png" href="./icon-192.png">
-    <link rel="apple-touch-icon" href="./icon-192.png">
-    <title>My PWA</title>
+    <meta name="description" content="ThirtyOneRecord Progressive Web App">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="/manifest.json" crossorigin="use-credentials">
+    <link rel="icon" type="image/png" href="/icon-192.png">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <title>ThirtyOneRecord PWA</title>
     <style>
         * {
             margin: 0;
@@ -79,15 +82,15 @@
 </head>
 <body>
     <div class="container">
-        <h1>🚀 My PWA</h1>
-        <p>Ready to be added to Google Sites!</p>
+        <h1>🎵 ThirtyOneRecord</h1>
+        <p>Instala nuestra app para acceso rápido y offline</p>
         <div class="buttons">
-            <button class="btn-primary" onclick="installApp()">Install App</button>
-            <button class="btn-secondary" onclick="toggleOffline()">Toggle Offline</button>
+            <button class="btn-primary" onclick="installApp()">📲 Instalar App</button>
+            <button class="btn-secondary" onclick="toggleOffline()">🔌 Probar Offline</button>
         </div>
         <div class="status" id="status">
-            <p id="online-status">Status: Loading...</p>
-            <p id="pwa-status">PWA Service Worker: Loading...</p>
+            <p id="online-status">Estado: Cargando...</p>
+            <p id="pwa-status">Service Worker: Cargando...</p>
         </div>
     </div>
 
@@ -127,17 +130,31 @@
         // Service Worker Registration
         function initPWA() {
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/pwa/sw.js', { scope: '/pwa/' })
+                // Solo registrar si no estamos en un iframe
+                const isInIframe = window.self !== window.top;
+                if (isInIframe) {
+                    console.log('[PWA] En iframe, SW no se registrará');
+                    const el = document.getElementById('pwa-status');
+                    if (el) el.textContent = 'PWA: Abre en nueva ventana para instalar';
+                    return;
+                }
+                
+                navigator.serviceWorker.register('/sw.js', {
+                    scope: '/'
+                })
                     .then(reg => {
                         console.log('[PWA] SW registered:', reg);
                         const el = document.getElementById('pwa-status');
-                        if (el) el.textContent = 'PWA Service Worker: Registered ✓';
+                        if (el) el.textContent = 'PWA Service Worker: Registrado ✓';
                     })
                     .catch(err => {
                         console.error('[PWA] SW error:', err);
                         const el = document.getElementById('pwa-status');
-                        if (el) el.textContent = 'PWA Service Worker: Error';
+                        if (el) el.textContent = 'PWA Service Worker: Error - ' + err.message;
                     });
+            } else {
+                const el = document.getElementById('pwa-status');
+                if (el) el.textContent = 'PWA: Service Worker no disponible';
             }
         }
 
@@ -145,7 +162,7 @@
         function updateOnlineStatus() {
             const el = document.getElementById('online-status');
             if (el) {
-                el.textContent = navigator.onLine ? 'Status: Online ✓' : 'Status: Offline';
+                el.textContent = navigator.onLine ? 'Estado: En línea ✓' : 'Estado: Sin conexión';
             }
         }
 
@@ -171,18 +188,27 @@
         });
 
         window.installApp = function() {
+            if (window.self !== window.top) {
+                alert('⚠️ Para instalar la app, primero ábrela en una nueva ventana haciendo clic en el enlace del banner superior.');
+                return;
+            }
             if (deferredPrompt) {
                 deferredPrompt.prompt();
-                deferredPrompt.userChoice.then(() => {
+                deferredPrompt.userChoice.then((choice) => {
+                    if (choice.outcome === 'accepted') {
+                        console.log('[PWA] Usuario aceptó instalación');
+                    } else {
+                        console.log('[PWA] Usuario rechazó instalación');
+                    }
                     deferredPrompt = null;
                 });
             } else {
-                alert('App is already installed or not available');
+                alert('La app ya está instalada o el navegador no soporta instalación. Intenta desde Chrome/Edge en escritorio o Android.');
             }
         };
 
         window.toggleOffline = function() {
-            alert('This app works offline! Try disabling your internet connection.');
+            alert('¡Esta app funciona sin conexión! Prueba desactivando tu internet.');
         };
     </script>
 </body>
