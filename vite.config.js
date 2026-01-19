@@ -5,7 +5,7 @@ export default defineConfig({
   base: '/pwa/',
   plugins: [
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       scope: '/pwa/',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
       manifest: {
@@ -15,6 +15,7 @@ export default defineConfig({
         theme_color: '#ffffff',
         background_color: '#ffffff',
         display: 'standalone',
+        start_url: '/pwa/',
         icons: [
           {
             src: '/pwa/icon-192.png',
