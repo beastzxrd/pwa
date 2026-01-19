@@ -77,6 +77,32 @@
             font-size: 0.9rem;
         }
     </style>
+    <script>
+        // Direct inline registration - runs immediately
+        console.log('[PWA] Inline script starting...');
+        
+        function initPWA() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/pwa/sw.js', { scope: '/pwa/' })
+                    .then(reg => {
+                        console.log('[PWA] SW registered:', reg);
+                        const el = document.getElementById('pwa-status');
+                        if (el) el.textContent = 'PWA Service Worker: Registered ✓';
+                    })
+                    .catch(err => {
+                        console.error('[PWA] SW error:', err);
+                        const el = document.getElementById('pwa-status');
+                        if (el) el.textContent = 'PWA Service Worker: Error - ' + err.message;
+                    });
+            }
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPWA);
+        } else {
+            initPWA();
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -87,11 +113,44 @@
             <button class="btn-secondary" onclick="toggleOffline()">Toggle Offline</button>
         </div>
         <div class="status" id="status">
-            <p id="online-status">Online</p>
+            <p id="online-status">Status: Loading...</p>
             <p id="pwa-status">PWA Service Worker: Loading...</p>
         </div>
     </div>
 
-    <script type="module" src="/src/main.js"></script>
+    <script>
+        // Online/offline status
+        function updateOnlineStatus() {
+            const el = document.getElementById('online-status');
+            if (el) {
+                el.textContent = navigator.onLine ? 'Status: Online ✓' : 'Status: Offline';
+            }
+        }
+        updateOnlineStatus();
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+
+        // Install functions
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        window.installApp = function() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(() => {
+                    deferredPrompt = null;
+                });
+            } else {
+                alert('App is already installed or not available');
+            }
+        };
+
+        window.toggleOffline = function() {
+            alert('This app works offline! Try disabling your internet connection.');
+        };
+    </script>
 </body>
 </html>
