@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="My Progressive Web App">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <title>My PWA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .container {
+            text-align: center;
+            padding: 2rem;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-primary {
+            background: white;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .status {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 My PWA</h1>
+        <p>Ready to be added to Google Sites!</p>
+        <div class="buttons">
+            <button class="btn-primary" onclick="installApp()">Install App</button>
+            <button class="btn-secondary" onclick="toggleOffline()">Toggle Offline</button>
+        </div>
+        <div class="status" id="status">
+            <p id="online-status">Online</p>
+            <p id="pwa-status">PWA Service Worker: Loading...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').then(reg => {
+                document.getElementById('pwa-status').textContent = 'PWA Service Worker: Registered ✓';
+                console.log('Service Worker registered:', reg);
+            }).catch(err => {
+                document.getElementById('pwa-status').textContent = 'PWA Service Worker: Failed';
+                console.log('Service Worker registration failed:', err);
+            });
+        }
+
+        // Online/Offline status
+        window.addEventListener('online', () => {
+            document.getElementById('online-status').textContent = 'Status: Online ✓';
+        });
+        window.addEventListener('offline', () => {
+            document.getElementById('online-status').textContent = 'Status: Offline';
+        });
+
+        document.getElementById('online-status').textContent = 
+            navigator.onLine ? 'Status: Online ✓' : 'Status: Offline';
+    </script>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
