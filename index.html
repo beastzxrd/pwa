@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <base href="/pwa/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#667eea">
     <meta name="description" content="My Progressive Web App">
-    <link rel="manifest" href="/pwa/manifest.json">
-    <link rel="icon" type="image/svg+xml" href="/pwa/favicon.svg">
-    <link rel="apple-touch-icon" href="/pwa/apple-touch-icon.png">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/png" href="./icon-192.png">
+    <link rel="apple-touch-icon" href="./icon-192.png">
     <title>My PWA</title>
     <style>
         * {
@@ -77,32 +76,6 @@
             font-size: 0.9rem;
         }
     </style>
-    <script>
-        // Direct inline registration - runs immediately
-        console.log('[PWA] Inline script starting...');
-        
-        function initPWA() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/pwa/sw.js', { scope: '/pwa/' })
-                    .then(reg => {
-                        console.log('[PWA] SW registered:', reg);
-                        const el = document.getElementById('pwa-status');
-                        if (el) el.textContent = 'PWA Service Worker: Registered ✓';
-                    })
-                    .catch(err => {
-                        console.error('[PWA] SW error:', err);
-                        const el = document.getElementById('pwa-status');
-                        if (el) el.textContent = 'PWA Service Worker: Error - ' + err.message;
-                    });
-            }
-        }
-        
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initPWA);
-        } else {
-            initPWA();
-        }
-    </script>
 </head>
 <body>
     <div class="container">
@@ -119,6 +92,55 @@
     </div>
 
     <script>
+        // PWA Initialization
+        console.log('[PWA] Starting...');
+
+        // Detectar si está en iframe (Google Sites)
+        if (window.self !== window.top) {
+            // Está dentro de un iframe
+            const banner = document.createElement('div');
+            banner.style.cssText = `
+                position: fixed; 
+                top: 0; 
+                left: 0; 
+                right: 0; 
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                color: white; 
+                padding: 12px; 
+                text-align: center; 
+                z-index: 9999;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                font-size: 14px;
+            `;
+            banner.innerHTML = `
+                ⚠️ Para instalar esta app, 
+                <a href="${window.location.href}" 
+                   target="_blank" 
+                   style="color: white; text-decoration: underline; font-weight: bold;">
+                    ábrela en una nueva ventana
+                </a>
+            `;
+            document.body.appendChild(banner);
+            document.body.style.paddingTop = '50px';
+        }
+
+        // Service Worker Registration
+        function initPWA() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/pwa/sw.js', { scope: '/pwa/' })
+                    .then(reg => {
+                        console.log('[PWA] SW registered:', reg);
+                        const el = document.getElementById('pwa-status');
+                        if (el) el.textContent = 'PWA Service Worker: Registered ✓';
+                    })
+                    .catch(err => {
+                        console.error('[PWA] SW error:', err);
+                        const el = document.getElementById('pwa-status');
+                        if (el) el.textContent = 'PWA Service Worker: Error';
+                    });
+            }
+        }
+
         // Online/offline status
         function updateOnlineStatus() {
             const el = document.getElementById('online-status');
@@ -126,7 +148,18 @@
                 el.textContent = navigator.onLine ? 'Status: Online ✓' : 'Status: Offline';
             }
         }
-        updateOnlineStatus();
+
+        // Initialize on load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                initPWA();
+                updateOnlineStatus();
+            });
+        } else {
+            initPWA();
+            updateOnlineStatus();
+        }
+
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
 

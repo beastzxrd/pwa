@@ -1,9 +1,11 @@
 // Service Worker - Handles caching and offline functionality
-const CACHE_NAME = 'pwa-cache-v1';
+const CACHE_NAME = 'pwa-cache-v4';
 const STATIC_ASSETS = [
-    '/',
-    '/index.html',
-    '/manifest.webmanifest'
+    '/pwa/',
+    '/pwa/index.html',
+    '/pwa/manifest.json',
+    '/pwa/icon-192.png',
+    '/pwa/icon-512.png'
 ];
 
 // Install event - cache static assets
