@@ -91,30 +91,6 @@
         </div>
     </div>
 
-    <script type="module">
-        // Register service worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').then(reg => {
-                document.getElementById('pwa-status').textContent = 'PWA Service Worker: Registered ✓';
-                console.log('Service Worker registered:', reg);
-            }).catch(err => {
-                document.getElementById('pwa-status').textContent = 'PWA Service Worker: Failed';
-                console.log('Service Worker registration failed:', err);
-            });
-        }
-
-        // Online/Offline status
-        window.addEventListener('online', () => {
-            document.getElementById('online-status').textContent = 'Status: Online ✓';
-        });
-        window.addEventListener('offline', () => {
-            document.getElementById('online-status').textContent = 'Status: Offline';
-        });
-
-        document.getElementById('online-status').textContent = 
-            navigator.onLine ? 'Status: Online ✓' : 'Status: Offline';
-    </script>
-
     <script type="module" src="/src/main.js"></script>
 </body>
 </html>
