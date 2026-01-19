@@ -2,52 +2,71 @@
 
 let deferredPrompt;
 
+// Function to update status
+function updateStatus(elementId, text) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.textContent = text;
+    }
+}
+
 // Register Service Worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
         try {
-            const reg = await navigator.serviceWorker.register('/sw.js', {
-                scope: '/'
+            const reg = await navigator.serviceWorker.register('/pwa/sw.js', {
+                scope: '/pwa/'
             });
-            console.log('Service Worker registered:', reg);
-            document.getElementById('pwa-status').textContent = 'PWA Service Worker: Registered ✓';
+            console.log('✓ Service Worker registered successfully:', reg);
+            updateStatus('pwa-status', 'PWA Service Worker: Registered ✓');
             
             // Check for updates
             reg.addEventListener('updatefound', () => {
-                console.log('Service Worker update found');
+                console.log('✓ Service Worker update found');
             });
         } catch (err) {
-            console.error('Service Worker registration failed:', err);
-            document.getElementById('pwa-status').textContent = 'PWA Service Worker: Failed';
+            console.error('✗ Service Worker registration failed:', err);
+            updateStatus('pwa-status', 'PWA Service Worker: Failed - ' + err.message);
         }
     });
+} else {
+    console.warn('Service Worker not supported in this browser');
+    updateStatus('pwa-status', 'PWA Service Worker: Not supported');
 }
 
 // Listen for online/offline changes
 window.addEventListener('online', () => {
-    document.getElementById('online-status').textContent = 'Status: Online ✓';
-    console.log('Application is online');
+    updateStatus('online-status', 'Status: Online ✓');
+    console.log('✓ Application is online');
 });
 
 window.addEventListener('offline', () => {
-    document.getElementById('online-status').textContent = 'Status: Offline';
-    console.log('Application is offline');
+    updateStatus('online-status', 'Status: Offline');
+    console.log('✗ Application is offline');
 });
 
-// Set initial status
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('online-status').textContent = 
-        navigator.onLine ? 'Status: Online ✓' : 'Status: Offline';
-});
+// Set initial status when DOM is ready
+function initializeStatus() {
+    updateStatus('online-status', 
+        navigator.onLine ? 'Status: Online ✓' : 'Status: Offline');
+    console.log('✓ PWA status initialized');
+}
+
+document.addEventListener('DOMContentLoaded', initializeStatus);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeStatus);
+} else {
+    initializeStatus();
+}
 
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    console.log('PWA installation prompt available');
+    console.log('✓ PWA installation prompt available');
 });
 
 window.addEventListener('appinstalled', () => {
-    console.log('PWA installed');
+    console.log('✓ PWA installed successfully');
     deferredPrompt = null;
 });
 
@@ -56,7 +75,7 @@ function installApp() {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then(choiceResult => {
             if (choiceResult.outcome === 'accepted') {
-                console.log('User accepted the install prompt');
+                console.log('✓ User accepted the install prompt');
             } else {
                 console.log('User dismissed the install prompt');
             }
@@ -75,4 +94,4 @@ function toggleOffline() {
 window.installApp = installApp;
 window.toggleOffline = toggleOffline;
 
-console.log('PWA Application Loaded');
+console.log('✓ PWA Application Loaded');
